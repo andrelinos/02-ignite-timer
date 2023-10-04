@@ -5,7 +5,11 @@ import { useContext } from 'react'
 import { HistoryContainer, HistoryList, Status } from './styles'
 
 export function History() {
-  const { cycles } = useContext(CyclesContext)
+  const { cycles, deleteCycleItem } = useContext(CyclesContext)
+
+  function handleDeleteCycle(cycleId: string) {
+    deleteCycleItem(cycleId)
+  }
 
   return (
     <HistoryContainer>
@@ -32,15 +36,20 @@ export function History() {
                   })}
                 </td>
                 <td>
-                  {cycle.finishedDate && (
-                    <Status statusColor="green">Concluído</Status>
-                  )}
-                  {cycle.interruptedDate && (
+                  <div>
+                    {cycle.finishedDate && (
+                      <Status statusColor="green">Concluído</Status>
+                    )}
+
                     <Status statusColor="red">Interrompido</Status>
-                  )}
-                  {!cycle.finishedDate && !cycle.interruptedDate && (
-                    <Status statusColor="yellow">Em andamento</Status>
-                  )}
+
+                    {!cycle.finishedDate && !cycle.interruptedDate && (
+                      <Status statusColor="yellow">Em andamento</Status>
+                    )}
+                    <button onClick={() => handleDeleteCycle(cycle.id)}>
+                      x
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

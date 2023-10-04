@@ -13,6 +13,7 @@ export interface CycleProps {
 interface CyclesState {
   cycles: CycleProps[]
   activeCycleId: string | null
+  cycleIdToDelete: string | null
   amountSecondsPassed: number
 }
 
@@ -33,6 +34,13 @@ export function cyclesReducer(state: CyclesState, action: ActionTypeProps) {
         }
       })
 
+    case ActionTypes.DELETE_CYCLE_ITEM:
+      return produce(state, (draft) => {
+        if (action.payload) {
+          draft.cycles.filter((cycle) => cycle.id !== state.cycleIdToDelete)
+        }
+      })
+
     case ActionTypes.INTERRUPT_CURRENT_CYCLE: {
       const currentCycleIndex = state.cycles.findIndex((cycle) => {
         return cycle.id === state.activeCycleId
@@ -47,6 +55,7 @@ export function cyclesReducer(state: CyclesState, action: ActionTypeProps) {
         draft.cycles[currentCycleIndex].interruptedDate = new Date()
       })
     }
+
     case ActionTypes.MARK_CURRENT_CYCLE_AS_FINISHED: {
       const currentCycleIndex = state.cycles.findIndex((cycle) => {
         return cycle.id === state.activeCycleId
@@ -62,6 +71,7 @@ export function cyclesReducer(state: CyclesState, action: ActionTypeProps) {
         draft.cycles[currentCycleIndex].finishedDate = new Date()
       })
     }
+
     default:
       return state
   }

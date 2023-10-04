@@ -21,6 +21,11 @@ export const ButtonContainer = styled.button<ButtonProps>`
     cursor: not-allowed;
   }
 
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
   transition: background-color ease-in-out 0.3s;
 
   background-color: ${(props) =>

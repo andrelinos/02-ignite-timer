@@ -1,5 +1,6 @@
 import {
   addNewCycleAction,
+  deleteCycleItemAction,
   interruptCycleAction,
   markCurrentCycleAsFinishedAction,
 } from '@/reducers/cycles/actions'
@@ -22,10 +23,12 @@ interface CyclesContextType {
   cycles: CycleProps[]
   activeCycle: CycleProps | undefined
   activeCycleId: string | null
+  cycleIdToDelete: string | null
   amountSecondsPassed: number
   markCurrentCycleAsFinished: () => void
   setSecondsPassed: (seconds: number) => void
   createNewCycle: (data: CreateCycleData) => void
+  deleteCycleItem: (cycleId: string) => void
   interruptCurrentCycle: () => void
 }
 
@@ -38,6 +41,7 @@ interface CyclesContextProviderProps {
 export function CyclesContextProvider({
   children,
 }: CyclesContextProviderProps) {
+  const [cycleIdToDelete, setCycleIdToDelete] = useState('')
   const [cyclesState, dispatch] = useReducer(
     cyclesReducer,
     {
@@ -46,21 +50,25 @@ export function CyclesContextProvider({
       amountSecondsPassed: 0,
     },
     (initialState) => {
-      const storedStateAsJSON = localStorage.getItem(
-        '@andrelinos-ignite-timer:cycles-state-1.0.0',
-      )
+      try {
+        const storedStateAsJSON = localStorage.getItem(
+          '@andrelinos-ignite-timer:cycles-state-1.0.0',
+        )
 
-      if (storedStateAsJSON) {
-        return JSON.parse(storedStateAsJSON)
+        if (storedStateAsJSON) {
+          return JSON.parse(storedStateAsJSON)
+        }
+        return initialState
+      } catch (error) {
+        return []
       }
-
-      return initialState
     },
   )
 
   const { cycles, activeCycleId } = cyclesState
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
+  const newCyclesList = cycles.filter((cycle) => cycle.id !== cycleIdToDelete)
 
   const [amountSecondsPassed, setAmountSecondsPassed] = useState(() => {
     if (activeCycle) {
@@ -69,6 +77,23 @@ export function CyclesContextProvider({
 
     return 0
   })
+
+  async function deleteCycleItem(cycleId: string) {
+    setCycleIdToDelete(cycleId)
+    dispatch(deleteCycleItemAction())
+
+    const data = {
+      cycles: newCyclesList || [],
+      activeCycleId: null,
+      amountSecondsPassed: 0,
+    }
+    const cyclesJSON = JSON.stringify(data)
+
+    localStorage.setItem(
+      '@andrelinos-ignite-timer:cycles-state-1.0.0',
+      cyclesJSON,
+    )
+  }
 
   function setSecondsPassed(seconds: number) {
     setAmountSecondsPassed(seconds)
@@ -111,8 +136,9 @@ export function CyclesContextProvider({
   return (
     <CyclesContext.Provider
       value={{
+        cycleIdToDelete,
         cycles,
-
+        deleteCycleItem,
         activeCycle,
         activeCycleId,
         markCurrentCycleAsFinished,
