@@ -1,6 +1,12 @@
 # Ignite Timer #
 
+## Tela principal ##
+
 ![Imagem Home Projeto Ignite Timer](./.github/home-print.png)
+
+## Tela de histórico ##
+
+![Imagem Home Projeto Ignite Timer](./.github/history-print.png)
 
 ## Gerenciador de Tarefas com Temporizador ##
 
